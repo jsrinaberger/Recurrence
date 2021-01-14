@@ -31,5 +31,19 @@ private:
     // access the processor object that created it.
     RecurrenceAudioProcessor& processor;
 
+    Slider masterGainSlider;
+
+    Slider delayTimeSlider;
+    Slider delayFeedbackSlider;
+    Slider delayMixSlider;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecurrenceAudioProcessorEditor)
+
+public:
+
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> masterGainValue;
+
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> delayTimeValue;
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> delayFeedbackValue;
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> delayMixValue;
 };

@@ -55,6 +55,8 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    AudioProcessorValueTreeState apvst;
+
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecurrenceAudioProcessor)
@@ -64,4 +66,7 @@ private:
     AudioBuffer<float> delayBuffer;
     int writePosition { 0 };
     int currentSampleRate { 44100 }; 
+
+
+    AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 };

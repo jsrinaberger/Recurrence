@@ -23,6 +23,7 @@ RecurrenceAudioProcessor::RecurrenceAudioProcessor()
                      #endif
                        )
 #endif
+    :apvst(*this, nullptr, "PARAMETER", createParameterLayout())
 {
 }
 
@@ -237,4 +238,23 @@ void RecurrenceAudioProcessor::setStateInformation (const void* data, int sizeIn
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new RecurrenceAudioProcessor();
+}
+
+AudioProcessorValueTreeState::ParameterLayout RecurrenceAudioProcessor::createParameterLayout()
+{
+    std::vector <std::unique_ptr<RangedAudioParameter>> parameters;
+
+    auto masterGainParam = std::make_unique<AudioParameterFloat>("master gain", "Master Gain", -60.f, 0.f, -6.f);
+    parameters.push_back(std::move(masterGainParam));
+
+    auto delayTimeParam = std::make_unique<AudioParameterFloat>("delay time", "Delay Time", 1, 10000, 500.f);
+    parameters.push_back(std::move(delayTimeParam));
+
+    auto delayFeedbackParam = std::make_unique<AudioParameterFloat>("delay feedback", "Delay Feedback", 0, 1, .5f);
+    parameters.push_back(std::move(delayFeedbackParam));
+
+    auto delayMixParam = std::make_unique<AudioParameterFloat>("delay mix", "Deleay Mix", 0.f, 100.f, 50.f);
+    parameters.push_back(std::move(delayMixParam));
+
+    return { parameters.begin(), parameters.end() };
 }
