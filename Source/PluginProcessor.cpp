@@ -140,6 +140,8 @@ void RecurrenceAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
+    updateParameters();
+
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
@@ -148,7 +150,7 @@ void RecurrenceAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
     const int bufferLength = buffer.getNumSamples();
     const int delayBufferLength = delayBuffer.getNumSamples();
 
-    float gain = 0.3;
+    float gain = delayMix;
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -157,6 +159,7 @@ void RecurrenceAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
         const float* dryBuffer = buffer.getWritePointer(channel);
 
         // copy data from main buffer to the delay buffer
+        
         if (delayBufferLength > bufferLength + writePosition)
         {
             delayBuffer.copyFromWithRamp(channel, writePosition, bufferData, bufferLength, gain, gain);
@@ -173,19 +176,18 @@ void RecurrenceAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
 
         // ----------------------------------
 
-        int delayTime = 500; // miliseconds
         const int readPosition = static_cast<int> (delayBufferLength + writePosition - (currentSampleRate * delayTime / 1000)) % delayBufferLength;
         
         if (delayBufferLength > bufferLength + readPosition)
         {
-            buffer.addFrom(channel, 0, delayBufferData + readPosition, bufferLength);
+            buffer.addFromWithRamp(channel, 0, delayBufferData + readPosition, bufferLength, delayMix, delayMix);
         }
         else
         {
             const int bufferRemaining = delayBufferLength - readPosition;
 
-            buffer.addFrom(channel, 0, delayBufferData + readPosition, bufferRemaining);
-            buffer.addFrom(channel, bufferRemaining, delayBufferData, bufferLength - bufferRemaining);
+            buffer.addFromWithRamp(channel, 0, delayBufferData + readPosition, bufferRemaining, delayMix, delayMix);
+            buffer.addFromWithRamp(channel, bufferRemaining, delayBufferData, bufferLength - bufferRemaining, delayMix, delayMix);
         }
 
         
@@ -193,14 +195,22 @@ void RecurrenceAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
 
         if (delayBufferLength > bufferLength + writePosition)
         {
-            delayBuffer.addFromWithRamp(channel, writePosition, dryBuffer, bufferLength, 0.8, 0.8);
+            delayBuffer.addFromWithRamp(channel, writePosition, dryBuffer, bufferLength, delayFeedback, delayFeedback);
         }
         else
         {
             const int bufferRemaining = delayBufferLength - writePosition;
 
-            delayBuffer.addFromWithRamp(channel, bufferRemaining, dryBuffer, bufferRemaining, 0.8, 0.8);
-            delayBuffer.addFromWithRamp(channel, 0, dryBuffer, bufferLength - bufferRemaining, 0.8, 0.8);
+            delayBuffer.addFromWithRamp(channel, bufferRemaining, dryBuffer, bufferRemaining, delayFeedback, delayFeedback);
+            delayBuffer.addFromWithRamp(channel, 0, dryBuffer, bufferLength - bufferRemaining, delayFeedback, delayFeedback);
+        }
+
+        // ------------------------
+        auto* channelData = buffer.getWritePointer(channel);
+
+        for (int sample = 0; sample < bufferLength; sample++)
+        {
+            channelData[sample] *= Decibels::decibelsToGain(masterGain);
         }
     }
 
@@ -253,8 +263,16 @@ AudioProcessorValueTreeState::ParameterLayout RecurrenceAudioProcessor::createPa
     auto delayFeedbackParam = std::make_unique<AudioParameterFloat>("delay feedback", "Delay Feedback", 0, 1, .5f);
     parameters.push_back(std::move(delayFeedbackParam));
 
-    auto delayMixParam = std::make_unique<AudioParameterFloat>("delay mix", "Deleay Mix", 0.f, 100.f, 50.f);
+    auto delayMixParam = std::make_unique<AudioParameterFloat>("delay mix", "Delay Mix", 0.f, 1.f, 0.5f);
     parameters.push_back(std::move(delayMixParam));
 
     return { parameters.begin(), parameters.end() };
+}
+
+void RecurrenceAudioProcessor::updateParameters() {
+    masterGain = *(apvst.getRawParameterValue("master gain"));
+
+    delayTime = *(apvst.getRawParameterValue("delay time"));
+    delayFeedback = *(apvst.getRawParameterValue("delay feedback"));
+    delayMix = *(apvst.getRawParameterValue("delay mix"));
 }

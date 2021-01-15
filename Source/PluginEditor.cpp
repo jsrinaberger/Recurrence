@@ -33,7 +33,7 @@ RecurrenceAudioProcessorEditor::RecurrenceAudioProcessorEditor (RecurrenceAudioP
     delayTimeSlider.setSliderStyle(Slider::SliderStyle::Rotary);
     delayTimeSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 50, 20);
     delayTimeSlider.setTextBoxIsEditable(true);
-    delayTimeSlider.setRange(1, 10000, .1f);
+    delayTimeSlider.setRange(1, 10000, 1.f);
     addAndMakeVisible(&delayTimeSlider);
 
 
@@ -51,7 +51,7 @@ RecurrenceAudioProcessorEditor::RecurrenceAudioProcessorEditor (RecurrenceAudioP
     delayMixSlider.setSliderStyle(Slider::SliderStyle::Rotary);
     delayMixSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 50, 20);
     delayMixSlider.setTextBoxIsEditable(true);
-    delayMixSlider.setRange(0, 100, 0.01f);
+    delayMixSlider.setRange(0, 1, .01f);
     addAndMakeVisible(&delayMixSlider);
 }
 

@@ -63,10 +63,16 @@ private:
 
     float masterGain{ 0.8 };
 
+    int delayTime{ 500 };
+    float delayFeedback{ .5f };
+    float delayMix{ .5f };
+
     AudioBuffer<float> delayBuffer;
     int writePosition { 0 };
     int currentSampleRate { 44100 }; 
 
 
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
+    void updateParameters();
 };
