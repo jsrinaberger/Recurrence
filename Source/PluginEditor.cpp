@@ -97,8 +97,8 @@ RecurrenceAudioProcessorEditor::RecurrenceAudioProcessorEditor (RecurrenceAudioP
     saturationTypeValue = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment>(processor.apvst, "saturation type", saturationTypeMenu);
 
     saturationTypeMenu.addItem("Analog", 1);
-    saturationTypeMenu.addItem("Soft Curve", 2);
-    saturationTypeMenu.addItem("Hard Curve", 3);
+    saturationTypeMenu.addItem("Soft Clip", 2);
+    saturationTypeMenu.addItem("Hard Clip", 3);
 
     saturationTypeMenu.setSelectedId(1, true);
     saturationTypeMenu.setJustificationType(Justification::centred);

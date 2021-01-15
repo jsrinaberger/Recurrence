@@ -232,15 +232,22 @@ AudioProcessorEditor* RecurrenceAudioProcessor::createEditor()
 //==============================================================================
 void RecurrenceAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto savedState = apvst.copyState();
+    std::unique_ptr<XmlElement> xmlInfo(savedState.createXml());
+    copyXmlToBinary(*xmlInfo, destData);
 }
 
 void RecurrenceAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<XmlElement> xmlInfo(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlInfo.get() != nullptr)
+    {
+        if (xmlInfo->hasTagName(apvst.state.getType()))
+        {
+            apvst.replaceState(ValueTree::fromXml(*xmlInfo));
+        }
+    }
 }
 
 //==============================================================================
@@ -257,6 +264,8 @@ AudioProcessorValueTreeState::ParameterLayout RecurrenceAudioProcessor::createPa
     auto masterGainParam = std::make_unique<AudioParameterFloat>("master gain", "Master Gain", -60.f, 0.f, -6.f);
     parameters.push_back(std::move(masterGainParam));
 
+    //==============================================================================
+
     auto delayTimeParam = std::make_unique<AudioParameterFloat>("delay time", "Delay Time", 1, 10000, 500.f);
     parameters.push_back(std::move(delayTimeParam));
 
@@ -265,6 +274,25 @@ AudioProcessorValueTreeState::ParameterLayout RecurrenceAudioProcessor::createPa
 
     auto delayMixParam = std::make_unique<AudioParameterFloat>("delay mix", "Delay Mix", 0.f, 1.f, 0.5f);
     parameters.push_back(std::move(delayMixParam));
+
+    //==============================================================================
+
+    StringArray saturationTypeChoices;
+    saturationTypeChoices.add("Analog");
+    saturationTypeChoices.add("Soft Clip");
+    saturationTypeChoices.add("Hard Clip");
+
+    auto saturationTypeParam = std::make_unique<AudioParameterChoice>("saturation type", "Saturation Type", saturationTypeChoices, 0, "Saturation Type", nullptr, nullptr);
+    parameters.push_back(std::move(saturationTypeParam));
+
+    auto saturationDriveParam = std::make_unique<AudioParameterFloat>("saturation drive", "Saturation Drive", 0.f, 100.f, 50.f);
+    parameters.push_back(std::move(saturationDriveParam));
+
+    auto saturationToneParam = std::make_unique<AudioParameterFloat>("saturation tone", "Saturation Tone", 0.f, 100.f, 50.f);
+    parameters.push_back(std::move(saturationToneParam));
+
+    auto saturationMixParam = std::make_unique<AudioParameterFloat>("saturation mix", "Saturation Mix", 0.f, 100.f, 50.f);
+    parameters.push_back(std::move(saturationMixParam));
 
     return { parameters.begin(), parameters.end() };
 }

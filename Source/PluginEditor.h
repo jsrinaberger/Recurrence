@@ -37,6 +37,11 @@ private:
     Slider delayFeedbackSlider;
     Slider delayMixSlider;
 
+    ComboBox saturationTypeMenu;
+    Slider saturationDriveSlider;
+    Slider saturationToneSlider;
+    Slider saturationMixSlider;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecurrenceAudioProcessorEditor)
 
 public:
@@ -46,4 +51,9 @@ public:
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> delayTimeValue;
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> delayFeedbackValue;
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> delayMixValue;
+
+    std::unique_ptr <AudioProcessorValueTreeState::ComboBoxAttachment> saturationTypeValue;
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> saturationDriveValue;
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> saturationToneValue;
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> saturationMixValue;
 };
