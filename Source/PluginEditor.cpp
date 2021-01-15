@@ -19,6 +19,8 @@ RecurrenceAudioProcessorEditor::RecurrenceAudioProcessorEditor (RecurrenceAudioP
     // editor's size to whatever you need it to be.
     setSize (800, 600);
 
+#pragma region Master_Controls
+
     masterGainValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.apvst, "master gain", masterGainSlider);
 
     masterGainSlider.setSliderStyle(Slider::SliderStyle::Rotary);
@@ -27,6 +29,11 @@ RecurrenceAudioProcessorEditor::RecurrenceAudioProcessorEditor (RecurrenceAudioP
     masterGainSlider.setRange(-60.f, 0.f, 0.01f);
     addAndMakeVisible(&masterGainSlider);
 
+#pragma endregion Master_Controls
+
+    //==============================================================================
+
+#pragma region Delay_Controls
 
     delayTimeValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.apvst, "delay time", delayTimeSlider);
 
@@ -53,6 +60,51 @@ RecurrenceAudioProcessorEditor::RecurrenceAudioProcessorEditor (RecurrenceAudioP
     delayMixSlider.setTextBoxIsEditable(true);
     delayMixSlider.setRange(0, 1, .01f);
     addAndMakeVisible(&delayMixSlider);
+
+#pragma endregion Delay_Controls
+
+    //==============================================================================
+
+#pragma region Saturation_Ctonrols
+
+    saturationDriveValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.apvst, "saturation drive", saturationDriveSlider);
+
+    saturationDriveSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+    saturationDriveSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 50, 20);
+    saturationDriveSlider.setTextBoxIsEditable(true);
+    saturationDriveSlider.setRange(0, 100, .1f);
+    addAndMakeVisible(&saturationDriveSlider);
+
+
+    saturationToneValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.apvst, "saturation tone", saturationToneSlider);
+
+    saturationToneSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+    saturationToneSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 50, 20);
+    saturationToneSlider.setTextBoxIsEditable(true);
+    saturationToneSlider.setRange(0, 100, .1f);
+    addAndMakeVisible(&saturationToneSlider);
+
+
+    saturationMixValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.apvst, "saturation mix", saturationMixSlider);
+
+    saturationMixSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+    saturationMixSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 50, 20);
+    saturationMixSlider.setTextBoxIsEditable(true);
+    saturationMixSlider.setRange(0, 100, .1f);
+    addAndMakeVisible(&saturationMixSlider);
+
+
+    saturationTypeValue = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment>(processor.apvst, "saturation type", saturationTypeMenu);
+
+    saturationTypeMenu.addItem("Analog", 1);
+    saturationTypeMenu.addItem("Soft Curve", 2);
+    saturationTypeMenu.addItem("Hard Curve", 3);
+
+    saturationTypeMenu.setSelectedId(1, true);
+    saturationTypeMenu.setJustificationType(Justification::centred);
+    addAndMakeVisible(&saturationTypeMenu);
+
+#pragma endregion Saturation_Controls
 }
 
 RecurrenceAudioProcessorEditor::~RecurrenceAudioProcessorEditor()
@@ -65,11 +117,16 @@ void RecurrenceAudioProcessorEditor::paint (Graphics& g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
 
-    masterGainSlider.setBounds(getWidth() / 4 - 75, getHeight() / 2, 100, 100);
+    masterGainSlider.setBounds(getWidth() / 4 - 75, getHeight() / 4, 100, 100);
 
-    delayTimeSlider.setBounds(getWidth() / 4 + 75, getHeight() / 2, 100, 100);
-    delayFeedbackSlider.setBounds(getWidth() * 3 / 4 - 75, getHeight() / 2, 100, 100);
-    delayMixSlider.setBounds(getWidth() * 3 / 4 + 75, getHeight() / 2, 100, 100);
+    delayTimeSlider.setBounds(getWidth() / 4 + 75, getHeight() / 4, 100, 100);
+    delayFeedbackSlider.setBounds(getWidth() * 3 / 4 - 75, getHeight() / 4, 100, 100);
+    delayMixSlider.setBounds(getWidth() * 3 / 4 + 75, getHeight() / 4, 100, 100);
+
+    saturationTypeMenu.setBounds(getWidth() / 4 - 75, getHeight() / 2, 150, 100);
+    saturationDriveSlider.setBounds(getWidth() / 4 + 75, getHeight() / 2, 100, 100);
+    saturationToneSlider.setBounds(getWidth() * 3 / 4 - 75, getHeight() / 2, 100, 100);
+    saturationMixSlider.setBounds(getWidth() * 3 / 4 + 75, getHeight() / 2, 100, 100);
 }
 
 void RecurrenceAudioProcessorEditor::resized()
